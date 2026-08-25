@@ -6,19 +6,23 @@ const secretKey = process.env.SESSION_SECRET;
 if (!secretKey) throw new Error("SESSION_SECRET não configurado");
 const encodedKey = new TextEncoder().encode(secretKey);
 
-const SESSION_COOKIE = "session";
-const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 dias
+export const SESSION_COOKIE = "session";
+// Sliding session — renovação a cada request acontece em proxy.ts.
+export const SESSION_DURATION_MS = 60 * 60 * 1000;
+const SESSION_DURATION_JWT = "1h";
 
-type SessionPayload = {
-  userId: string;
-  expiresAt: Date;
+export const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax" as const,
+  path: "/",
 };
 
-async function encrypt(payload: SessionPayload) {
-  return new SignJWT({ userId: payload.userId })
+async function encrypt(userId: string) {
+  return new SignJWT({ userId })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime(SESSION_DURATION_JWT)
     .sign(encodedKey);
 }
 
@@ -32,18 +36,17 @@ export async function decrypt(token: string | undefined) {
   }
 }
 
-export async function createSession(userId: string) {
+export async function signSession(userId: string) {
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
-  const session = await encrypt({ userId, expiresAt });
+  const token = await encrypt(userId);
+  return { token, expiresAt };
+}
+
+export async function createSession(userId: string) {
+  const { token, expiresAt } = await signSession(userId);
   const cookieStore = await cookies();
 
-  cookieStore.set(SESSION_COOKIE, session, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    expires: expiresAt,
-    path: "/",
-  });
+  cookieStore.set(SESSION_COOKIE, token, { ...SESSION_COOKIE_OPTIONS, expires: expiresAt });
 }
 
 export async function getSessionToken() {

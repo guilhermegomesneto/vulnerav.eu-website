@@ -2,14 +2,16 @@ import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PERMISSIONS } from "../lib/permissions";
+import { ROLES } from "../lib/roles";
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL });
 const db = new PrismaClient({ adapter });
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-  reader: [PERMISSIONS.COMMENT_CREATE],
-  writer: [PERMISSIONS.COMMENT_CREATE, PERMISSIONS.POST_CREATE, PERMISSIONS.POST_PUBLISH],
-  admin: Object.values(PERMISSIONS),
+  [ROLES.READER]: [PERMISSIONS.COMMENT_CREATE],
+  [ROLES.WRITER]: [PERMISSIONS.COMMENT_CREATE, PERMISSIONS.POST_CREATE, PERMISSIONS.POST_PUBLISH],
+  [ROLES.ADMIN]: Object.values(PERMISSIONS),
+  [ROLES.LOCKED]: [], // nenhuma permissão — ver lib/roles.ts
 };
 
 async function main() {

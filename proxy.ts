@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decrypt } from "@/lib/session";
+import { decrypt, signSession, SESSION_COOKIE, SESSION_COOKIE_OPTIONS } from "@/lib/session";
 
 // Checagem otimista: só lê o cookie, nunca bate no banco aqui (proxy roda em
 // toda rota, inclusive prefetch). A checagem "de verdade" (RBAC por
@@ -10,7 +10,7 @@ const AUTH_ROUTES = ["/login", "/registro"];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("session")?.value;
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = await decrypt(token);
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -24,7 +24,16 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/painel", request.url));
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // Sliding session: qualquer request autenticado renova o cookie por mais
+  // 1h a partir de agora. Sem atividade por 1h, o token expira de verdade.
+  if (session?.userId) {
+    const { token: freshToken, expiresAt } = await signSession(session.userId);
+    response.cookies.set(SESSION_COOKIE, freshToken, { ...SESSION_COOKIE_OPTIONS, expires: expiresAt });
+  }
+
+  return response;
 }
 
 export const config = {

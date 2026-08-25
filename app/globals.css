@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
+/* Paleta e tipografia herdadas do vulnerav-mural (versão antiga das
+   confissões): papel quente, dourado terroso, serifas editoriais.
+   O dourado (accent-*) fica igual nos dois temas — no mural antigo o
+   mesmo tom já funcionava tanto no corpo claro quanto no hero escuro. */
+@theme {
+  --color-paper: #f7f5f2;
+  --color-surface: #ffffff;
+
+  --color-ink: #201f1d;
+  --color-ink-muted: #6b6965;
+
+  --color-accent-300: #d9b689;
+  --color-accent-500: #b68235;
+  --color-accent-600: #9c6f2c;
+  --color-accent-700: #8a6427;
+  --color-accent-900: #5e4419;
+
+  --color-line: #e2dfda;
+  --color-danger: #b3261e;
+
+  --font-heading: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-body: var(--font-newsreader), "Newsreader", serif;
+  --font-sans: var(--font-plex), "IBM Plex Sans", sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --shadow-card:
+    0 20px 45px -15px rgba(32, 25, 15, 0.18),
+    0 4px 10px -4px rgba(32, 25, 15, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark mode: segue o sistema por padrão. Um data-theme explícito
+   (setado pelo ThemeToggle, lido do localStorage antes do paint —
+   ver o script inline em layout.tsx) sobrepõe a preferência do SO. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --color-paper: #1b1812;
+    --color-surface: #242019;
+    --color-ink: #f3f2ee;
+    --color-ink-muted: #a8a29a;
+    --color-line: #3a352c;
+    --color-danger: #e0776e;
+    --shadow-card:
+      0 20px 50px -12px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 }
 
+:root[data-theme="dark"] {
+  --color-paper: #1b1812;
+  --color-surface: #242019;
+  --color-ink: #f3f2ee;
+  --color-ink-muted: #a8a29a;
+  --color-line: #3a352c;
+  --color-danger: #e0776e;
+  --shadow-card:
+    0 20px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Glow dourado de fundo, mesma técnica do hero do mural antigo
+   (radial-gradient ancorado no topo), só que aplicado no site inteiro
+   e sutil o bastante pra não brigar com o conteúdo. */
+.bg-glow {
+  background:
+    radial-gradient(1100px 560px at 50% -12%, color-mix(in oklch, var(--color-accent-500) 20%, transparent), transparent 70%),
+    var(--color-paper);
+  background-repeat: no-repeat;
 }
