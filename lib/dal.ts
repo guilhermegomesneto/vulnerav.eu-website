@@ -1,26 +1,35 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { getSessionToken, decrypt } from "@/lib/session";
+import { getSessionToken, decrypt, deleteSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { ROLES } from "@/lib/roles";
 
-export const verifySession = cache(async () => {
+// Sessão válida só se o JWT decodificar E a role não for "locked" (ver lib/roles.ts).
+export const getOptionalSession = cache(async () => {
   const token = await getSessionToken();
   const payload = await decrypt(token);
+  if (!payload?.userId) return null;
 
-  if (!payload?.userId) {
-    redirect("/login");
-  }
+  const user = await db.user.findUnique({
+    where: { id: payload.userId },
+    select: { role: { select: { name: true } } },
+  });
+
+  if (!user || user.role.name === ROLES.LOCKED) return null;
 
   return { userId: payload.userId };
 });
 
-// Como o proxy.ts (optimistic check) só lê o cookie, use esta versão quando
-// só precisar saber se há sessão, sem forçar redirect (ex: layouts públicos).
-export const getOptionalSession = cache(async () => {
-  const token = await getSessionToken();
-  const payload = await decrypt(token);
-  return payload?.userId ? { userId: payload.userId } : null;
+export const verifySession = cache(async () => {
+  const session = await getOptionalSession();
+
+  if (!session) {
+    await deleteSession();
+    redirect("/login");
+  }
+
+  return session;
 });
 
 export const getUser = cache(async () => {
@@ -29,7 +38,7 @@ export const getUser = cache(async () => {
 
   return db.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, email: true, role: { select: { name: true } } },
+    select: { id: true, nickname: true, role: { select: { name: true } } },
   });
 });
 
