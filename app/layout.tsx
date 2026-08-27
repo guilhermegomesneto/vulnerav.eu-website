@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Newsreader, IBM_Plex_Sans } from "next/font/google";
 import { Header } from "@/app/_components/header";
+import { Footer } from "@/app/_components/footer";
+import { PaperFilters } from "@/app/_components/paper-filters";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -49,8 +51,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="bg-glow flex min-h-full flex-col font-body text-ink">
+        <PaperFilters />
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

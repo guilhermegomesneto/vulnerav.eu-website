@@ -1,4 +1,5 @@
 import { Button } from "@/app/_components/button";
+import { formatText } from "@/app/_components/format-text";
 
 type PostListItemProps = {
   slug: string;
@@ -15,7 +16,7 @@ export function PostListItem({ slug, title, author, createdAt, excerpt }: PostLi
       <p className="font-sans text-xs uppercase tracking-wide text-ink-muted">
         {author} / {createdAt.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}
       </p>
-      <p className="font-body text-[17px] leading-relaxed text-ink-muted line-clamp-4">{excerpt}</p>
+      <p className="font-body text-[17px] leading-relaxed text-ink-muted line-clamp-4">{formatText(excerpt)}</p>
       <Button href={`/blog/${slug}`}>Ver mais</Button>
     </article>
   );

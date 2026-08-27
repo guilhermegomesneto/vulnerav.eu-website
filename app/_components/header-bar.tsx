@@ -34,7 +34,7 @@ export function HeaderBar({ user, canWrite }: { user: User; canWrite: boolean })
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-5">
+      <div className="flex w-full items-center justify-between px-8 py-5">
         <Link href="/" className="font-heading text-2xl font-medium tracking-tight text-ink">
           vulnerav.eu
         </Link>

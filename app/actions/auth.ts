@@ -6,6 +6,10 @@ import { hashPassword, verifyPassword } from "@/lib/password";
 import { createSession, deleteSession } from "@/lib/session";
 import { LoginSchema, SignupSchema } from "@/lib/validations/auth";
 import { ROLES } from "@/lib/roles";
+import { getIpHash } from "@/lib/anon";
+import { consumeRateLimit } from "@/lib/rate-limit";
+
+const FIVE_MINUTES = 5 * 60 * 1000;
 
 export type AuthActionState =
   | { status: "idle" }
@@ -20,6 +24,12 @@ export async function login(_prevState: AuthActionState, formData: FormData): Pr
 
   if (!parsed.success) {
     return { status: "error", fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const ipHash = await getIpHash();
+  const rateLimit = consumeRateLimit(`login:${ipHash}`, 5, FIVE_MINUTES);
+  if (!rateLimit.allowed) {
+    return { status: "error", error: "Muitas tentativas. Tente novamente em alguns minutos." };
   }
 
   const user = await db.user.findUnique({
@@ -50,6 +60,12 @@ export async function signup(_prevState: AuthActionState, formData: FormData): P
 
   if (!parsed.success) {
     return { status: "error", fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const ipHash = await getIpHash();
+  const rateLimit = consumeRateLimit(`signup:${ipHash}`, 3, FIVE_MINUTES);
+  if (!rateLimit.allowed) {
+    return { status: "error", error: "Muitas tentativas. Tente novamente em alguns minutos." };
   }
 
   const existing = await db.user.findFirst({

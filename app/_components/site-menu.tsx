@@ -44,9 +44,12 @@ export function SiteMenu({ user, canWrite }: { user: { nickname: string } | null
             <Link href="/" onClick={() => setOpen(false)} className={navItemClass}>
               Home
             </Link>
+            <Link href="/confissoes" onClick={() => setOpen(false)} className={navItemClass}>
+              Mural de Confissões
+            </Link>
             {canWrite && (
               <Link href="/escrever" onClick={() => setOpen(false)} className={navItemClass}>
-                Escrever
+                Novo Artigo
               </Link>
             )}
           </nav>

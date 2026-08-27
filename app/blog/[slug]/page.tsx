@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { youtubeEmbedSrc } from "@/lib/embeds";
 import { InstagramEmbed } from "@/app/_components/instagram-embed";
+import { formatText } from "@/app/_components/format-text";
 
 export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
   const { slug } = await params;
@@ -30,7 +31,9 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </p>
         </header>
 
-        <div className="whitespace-pre-wrap font-body text-[17px] leading-relaxed text-ink">{post.body}</div>
+        <div className="whitespace-pre-wrap font-body text-[17px] leading-relaxed text-ink">
+          {formatText(post.body)}
+        </div>
 
         {post.embeds.map((embed) =>
           embed.provider === "YOUTUBE" ? (
