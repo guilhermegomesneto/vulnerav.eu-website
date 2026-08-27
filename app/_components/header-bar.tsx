@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/app/_components/theme-toggle";
 
 type User = { nickname: string } | null;
 
-export function HeaderBar({ user }: { user: User }) {
+export function HeaderBar({ user, canWrite }: { user: User; canWrite: boolean }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
@@ -24,7 +24,7 @@ export function HeaderBar({ user }: { user: User }) {
           </Link>
           <div className="flex items-center justify-self-end gap-3">
             <ThemeToggle />
-            <SiteMenu user={user} />
+            <SiteMenu user={user} canWrite={canWrite} />
           </div>
         </div>
         <div className="mx-auto h-px w-32 bg-line" />
@@ -40,7 +40,7 @@ export function HeaderBar({ user }: { user: User }) {
         </Link>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <SiteMenu user={user} />
+          <SiteMenu user={user} canWrite={canWrite} />
         </div>
       </div>
     </header>

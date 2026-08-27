@@ -45,6 +45,7 @@ export async function signup(_prevState: AuthActionState, formData: FormData): P
     nickname: formData.get("nickname"),
     email: formData.get("email"),
     password: formData.get("password"),
+    passwordConfirmation: formData.get("passwordConfirmation"),
   });
 
   if (!parsed.success) {

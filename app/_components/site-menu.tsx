@@ -7,7 +7,7 @@ import { cardClass } from "@/app/_components/ui";
 import { Button } from "@/app/_components/button";
 import { TextLink } from "@/app/_components/text-link";
 
-export function SiteMenu({ user }: { user: { nickname: string } | null }) {
+export function SiteMenu({ user, canWrite }: { user: { nickname: string } | null; canWrite: boolean }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +44,11 @@ export function SiteMenu({ user }: { user: { nickname: string } | null }) {
             <Link href="/" onClick={() => setOpen(false)} className={navItemClass}>
               Home
             </Link>
+            {canWrite && (
+              <Link href="/escrever" onClick={() => setOpen(false)} className={navItemClass}>
+                Escrever
+              </Link>
+            )}
           </nav>
 
           <div className="my-2 border-t border-line" />

@@ -41,18 +41,7 @@ export function parseEmbedUrl(url: string): ParsedEmbed | null {
   return null;
 }
 
-/**
- * Monta a src do iframe a partir de dados já validados (provider + externalId
- * vindos do banco) — nunca a partir de uma URL crua fornecida pelo usuário.
- */
-export function embedSrc({ provider, externalId }: ParsedEmbed) {
-  switch (provider) {
-    case "YOUTUBE":
-      return `https://www.youtube-nocookie.com/embed/${externalId}`;
-    case "INSTAGRAM": {
-      // externalId no formato "p:ABC123" ou "reel:ABC123" — ver parseEmbedUrl.
-      const [kind, id] = externalId.split(":");
-      return `https://www.instagram.com/${kind}/${id}/embed`;
-    }
-  }
+// Instagram não usa mais iframe direto — ver app/_components/instagram-embed.tsx.
+export function youtubeEmbedSrc(externalId: string) {
+  return `https://www.youtube-nocookie.com/embed/${externalId}`;
 }

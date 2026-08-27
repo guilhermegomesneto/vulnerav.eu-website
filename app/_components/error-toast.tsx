@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { AuthActionState } from "@/app/actions/auth";
 
-function collectMessages(state: AuthActionState): string[] {
+type ErrorState = { status: string; error?: string; fieldErrors?: Record<string, string[]> };
+
+function collectMessages(state: ErrorState): string[] {
   if (state.status !== "error") return [];
   const messages = state.error ? [state.error] : [];
   for (const errors of Object.values(state.fieldErrors ?? {})) {
@@ -12,7 +13,7 @@ function collectMessages(state: AuthActionState): string[] {
   return messages;
 }
 
-export function ErrorToast({ state }: { state: AuthActionState }) {
+export function ErrorToast({ state }: { state: ErrorState }) {
   const [visible, setVisible] = useState(false);
   const messages = collectMessages(state);
 
